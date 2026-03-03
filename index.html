@@ -1,50 +1,3350 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Package Search</title>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui/1.12.1/jquery-ui.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+    <title>MES Package Explorer | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Color Palette - Professional Dashboard */
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            
+            /* Neutral Colors */
+            --dark: #1e293b;
+            --gray-900: #0f172a;
+            --gray-800: #1e293b;
+            --gray-700: #334155;
+            --gray-600: #475569;
+            --gray-500: #64748b;
+            --gray-400: #94a3b8;
+            --gray-300: #cbd5e1;
+            --gray-200: #e2e8f0;
+            --gray-100: #f1f5f9;
+            --gray-50: #f8fafc;
+            --white: #ffffff;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition: 250ms ease;
+            --transition-slow: 350ms ease;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+        }
+        
+        html {
+            font-size: 16px;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-800) 100%);
+            color: var(--gray-700);
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* ===== LAYOUT ===== */
+        .app-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            min-height: 100vh;
+        }
+        
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .sidebar-toggle {
+                display: block !important;
+            }
+        }
+        
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            background: var(--gray-900);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 25px 20px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            width: 40px;
+            height: 40px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+        
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo-subtext {
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            font-weight: 500;
+        }
+        
+        /* ===== STATS IN SIDEBAR ===== */
+        .stats-sidebar {
+            margin-bottom: 30px;
+        }
+        
+        .stat-card-sidebar {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all var(--transition);
+        }
+        
+        .stat-card-sidebar:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-value-sidebar {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stat-label-sidebar {
+            font-size: 0.85rem;
+            color: var(--gray-400);
+            font-weight: 500;
+        }
+        
+        .stat-trend {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--secondary);
+        }
+        
+        .stat-trend.down {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        /* ===== SIDEBAR NAVIGATION ===== */
+        .nav-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--gray-500);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: var(--radius);
+            color: var(--gray-300);
+            text-decoration: none;
+            transition: all var(--transition);
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        
+        .nav-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        /* ===== COOKIE STATUS ===== */
+        .cookie-status {
+            margin-top: auto;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .cookie-status-title {
+            color: var(--gray-400);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cookie-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger);
+        }
+        
+        .status-dot.valid {
+            background: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        
+        .status-text {
+            color: white;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .cookie-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--gray-300);
+            cursor: pointer;
+            transition: all var(--transition);
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .btn-small:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            background: var(--gray-100);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .header-subtitle {
+            color: var(--gray-500);
+            font-size: 0.95rem;
+        }
+        
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        /* ===== FILTER SECTION ===== */
+        .filter-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            color: var(--gray-800);
+            background: white;
+            transition: all var(--transition);
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .date-input-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        
+        .date-display {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+        
+        .date-display strong {
+            color: var(--primary);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 14px 24px;
+            border-radius: var(--radius);
+            border: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 140px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--gray-600);
+            border: 2px solid var(--gray-300);
+        }
+        
+        .btn-outline:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+        
+        .btn-sm {
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            min-width: auto;
+        }
+        
+        .copy-format-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--gray-50);
+            padding: 15px;
+            border-radius: var(--radius);
+            margin-top: 20px;
+        }
+        
+        .copy-format-label {
+            font-weight: 600;
+            color: var(--gray-700);
+            white-space: nowrap;
+        }
+        
+        /* ===== ADVANCED FILTERS ===== */
+        .advanced-filters {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            display: none;
+        }
+
+        .filter-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 15px;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            border: 1px solid var(--gray-200);
+            transition: all var(--transition);
+        }
+
+        .filter-toggle:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-300);
+        }
+
+        .filter-toggle-title {
+            font-weight: 600;
+            color: var(--gray-700);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-toggle-icon {
+            transition: transform var(--transition);
+        }
+
+        .filter-toggle.active .filter-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .filter-advanced-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .multi-select-container {
+            position: relative;
+        }
+
+        .multi-select-display {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            color: var(--gray-800);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition);
+        }
+
+        .multi-select-display:hover {
+            border-color: var(--gray-300);
+        }
+
+        .multi-select-display.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .multi-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .multi-select-dropdown.active {
+            display: block;
+        }
+
+        .multi-select-option {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .multi-select-option:hover {
+            background: var(--gray-50);
+        }
+
+        .multi-select-option input {
+            margin: 0;
+        }
+
+        .selected-count {
+            font-size: 0.8rem;
+            color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        /* ===== QUICK COPY SECTION ===== */
+        .quick-copy-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            display: none;
+        }
+
+        .quick-copy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .quick-copy-card {
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--gray-200);
+            transition: all var(--transition);
+        }
+
+        .quick-copy-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+
+        .quick-copy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .quick-copy-title {
+            font-weight: 600;
+            color: var(--gray-700);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quick-copy-count {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            background: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .quick-copy-preview {
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            background: white;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gray-200);
+            max-height: 100px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .quick-copy-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .quick-copy-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .quick-copy-btn:disabled {
+            background: var(--gray-400);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== STATUS CHIPS ===== */
+        .status-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background: var(--gray-100);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .status-chip:hover {
+            background: var(--gray-200);
+        }
+
+        .status-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .status-chip-remove {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .status-chip-remove:hover {
+            opacity: 1;
+        }
+
+        /* ===== ACTIVE FILTERS ===== */
+        .active-filters-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-200);
+        }
+
+        .active-filters-title {
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ===== DATE RANGE GROUP ===== */
+        .date-range-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .date-range-input {
+            flex: 1;
+        }
+        
+        /* ===== RESULTS SECTION ===== */
+        .results-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .results-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--gray-50);
+        }
+        
+        .results-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .results-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .results-body {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .data-table th {
+            background: var(--gray-50);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 2px solid var(--gray-200);
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+        }
+        
+        .data-table tr:hover {
+            background: var(--gray-50);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-confirmed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary-dark);
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        /* ===== JSON OUTPUT STYLE - FIXED ===== */
+        .json-output {
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            padding: 20px;
+            overflow-x: auto;
+            border-radius: var(--radius);
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .json-pretty {
+            color: #e2e8f0;
+            background: transparent;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .json-key {
+            color: #7dd3fc;
+        }
+        
+        .json-string {
+            color: #bbf7d0;
+        }
+        
+        .json-number {
+            color: #fbbf24;
+        }
+        
+        .json-boolean {
+            color: #60a5fa;
+        }
+        
+        .json-null {
+            color: #c084fc;
+        }
+        
+        .json-undefined {
+            color: #f87171;
+        }
+        
+        /* ===== TABLE ACTION BUTTONS - IMPROVED VISIBILITY ===== */
+        .table-action-btn {
+            padding: 6px 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .table-action-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+        
+        .table-action-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* ===== LOADING ===== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast {
+            background: white;
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 300px;
+            transform: translateX(400px);
+            transition: transform var(--transition-slow);
+            animation: slideIn 0.5s ease forwards;
+        }
+        
+        .toast.success {
+            border-left-color: var(--secondary);
+        }
+        
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+        
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+        
+        .toast.success .toast-icon { color: var(--secondary); }
+        .toast.error .toast-icon { color: var(--danger); }
+        .toast.warning .toast-icon { color: var(--warning); }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        
+        .toast-message {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+        }
+        
+        @keyframes slideIn {
+            to { transform: translateX(0); }
+        }
+        
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            padding: 60px 30px;
+            text-align: center;
+            color: var(--gray-400);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--gray-500);
+        }
+        
+        .empty-description {
+            max-width: 400px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        /* ===== RESPONSIVE ADJUSTMENTS ===== */
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 20px;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-advanced-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .date-input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .date-range-group {
+                flex-direction: column;
+            }
+            
+            .copy-format-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .quick-copy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* ===== SECTION CONTENT ===== */
+        .section-content {
+            display: none;
+        }
+        
+        .section-content.active {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <h1>Package Search</h1>
-    <label for="startDate">Start Date:</label>
-    <input type="text" id="startDate" />
-    <label for="endDate">End Date:</label>
-    <input type="text" id="endDate" />
-    <div id="dateRangeDisplay"></div>
-    <button id="fetchPackagesButton">Fetch Packages</button>
+    <!-- Sidebar Toggle for Mobile -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-industry"></i>
+                </div>
+                <div>
+                    <div class="logo-text">MES Explorer</div>
+                    <div class="logo-subtext">Production Package Dashboard</div>
+                </div>
+            </div>
+            
+            <!-- STATS IN SIDEBAR -->
+            <div class="stats-sidebar">
+                <div class="section-title">Statistics</div>
+                
+                <div class="stat-card-sidebar">
+                    <div class="stat-value-sidebar">
+                        <span id="statTotalSidebar">0</span>
+                        <span class="stat-trend" id="statTrendTotal">0%</span>
+                    </div>
+                    <div class="stat-label-sidebar">Total Packages</div>
+                </div>
+                
+                <div class="stat-card-sidebar">
+                    <div class="stat-value-sidebar">
+                        <span id="statConfirmedSidebar">0</span>
+                        <span class="stat-trend" id="statTrendConfirmed">0%</span>
+                    </div>
+                    <div class="stat-label-sidebar">Confirmed</div>
+                </div>
+                
+                <div class="stat-card-sidebar">
+                    <div class="stat-value-sidebar">
+                        <span id="statPendingSidebar">0</span>
+                        <span class="stat-trend" id="statTrendPending">0%</span>
+                    </div>
+                    <div class="stat-label-sidebar">Pending</div>
+                </div>
+                
+                <div class="stat-card-sidebar">
+                    <div class="stat-value-sidebar">
+                        <span id="statSuccessRateSidebar">0%</span>
+                        <span class="stat-trend" id="statTrendSuccess">0%</span>
+                    </div>
+                    <div class="stat-label-sidebar">Success Rate</div>
+                </div>
+            </div>
+            
+            <!-- SIDEBAR NAVIGATION -->
+            <div class="nav-section">
+                <div class="section-title">Navigation</div>
+                <div class="nav-item active" onclick="showSection('dashboard')">
+                    <div class="nav-icon"><i class="fas fa-search"></i></div>
+                    <div class="nav-text">Package Search</div>
+                </div>
+                <div class="nav-item" onclick="showSection('cookie')">
+                    <div class="nav-icon"><i class="fas fa-key"></i></div>
+                    <div class="nav-text">Authentication</div>
+                </div>
+                <div class="nav-item" onclick="showCopyFormats()">
+                    <div class="nav-icon"><i class="fas fa-copy"></i></div>
+                    <div class="nav-text">Copy Tools</div>
+                </div>
+            </div>
+            
+            <!-- COOKIE STATUS -->
+            <div class="cookie-status">
+                <div class="cookie-status-title">
+                    <i class="fas fa-shield-alt"></i> Authentication Status
+                </div>
+                <div class="cookie-status-indicator">
+                    <div class="status-dot" id="cookieStatusDot"></div>
+                    <div class="status-text" id="cookieStatusText">Not Authenticated</div>
+                </div>
+                <div class="cookie-actions">
+                    <button class="btn-small" onclick="showSection('cookie')">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button class="btn-small" onclick="validateCookie()">
+                        <i class="fas fa-check"></i> Validate
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title" id="pageTitle">Package Search</div>
+                <div class="header-subtitle" id="pageSubtitle">Search and manage MES production packages</div>
+            </div>
+            
+            <div class="content-area">
+                <!-- DASHBOARD SECTION -->
+                <div class="section-content active" id="section-dashboard">
+                    <div class="filter-section">
+                        <h2 style="margin-bottom: 25px; color: var(--dark); font-size: 1.4rem;">
+                            <i class="fas fa-search me-2"></i> Package Search
+                        </h2>
+                        
+                        <div class="filter-grid">
+                            <!-- DATE RANGE FILTER - THAY THẾ CHO START DATE CŨ -->
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar-alt"></i> Date Range
+                                </label>
+                                <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 0.85rem; color: var(--gray-500); margin-bottom: 5px;">From</div>
+                                        <input type="date" id="startDate" class="form-control" 
+                                               value="" max="">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 0.85rem; color: var(--gray-500); margin-bottom: 5px;">To</div>
+                                        <input type="date" id="endDate" class="form-control" 
+                                               value="" max="">
+                                    </div>
+                                </div>
+                                <div class="date-display" id="dateRangeDisplay">
+                                    <i class="fas fa-info-circle"></i> 
+                                    <span id="dateRangeText">Select start and end dates</span>
+                                </div>
+                            </div>
+
+                            <!-- Quick Range Buttons - Thêm ngay sau dateRangeDisplay -->
+                            <div class="quick-range-buttons" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+                                <button class="btn btn-sm btn-outline" onclick="setDateRange('today')" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    <i class="fas fa-sun"></i> Today
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="setDateRange('yesterday')" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    <i class="fas fa-calendar-day"></i> Yesterday
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="setDateRange('last7days')" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    <i class="fas fa-history"></i> -7 Days
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="setDateRange('last30days')" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    <i class="fas fa-chart-line"></i> -30 Days
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="setDateRange('next7days')" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    <i class="fas fa-forward"></i> +7 Days
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="setDateRange('next30days')" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    <i class="fas fa-rocket"></i> +30 Days
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="factory">
+                                    <i class="fas fa-industry"></i> Factory
+                                </label>
+                                <select id="factory" class="form-control">
+                                    <option value="P2C1" selected>P2C1</option>
+                                    <option value="P2A1">P2A1</option>
+                                    <option value="P2B1">P2B1</option>
+                                    <option value="P2D1">P2D1</option>
+                                    <option value="P2E1">P2E1</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="outputFormat">
+                                    <i class="fas fa-file-export"></i> Output Format
+                                </label>
+                                <select id="outputFormat" class="form-control">
+                                    <option value="json">JSON (Full Data)</option>
+                                    <option value="simple">Simple (Package List)</option>
+                                    <option value="csv">CSV (Excel Format)</option>
+                                    <option value="table">Table View</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="fetchPackages()">
+                                <i class="fas fa-rocket"></i> Fetch Packages
+                            </button>
+                            <button class="btn btn-success" onclick="validateAndFetch()">
+                                <i class="fas fa-shield-check"></i> Validate & Fetch
+                            </button>
+                            <button class="btn btn-warning" onclick="showAdvancedFilters()">
+                                <i class="fas fa-filter"></i> Advanced Filters
+                            </button>
+                            <button class="btn btn-outline" onclick="resetFilters()">
+                                <i class="fas fa-redo"></i> Reset Filters
+                            </button>
+                        </div>
+                        
+                        <div class="copy-format-selector" id="copyFormatSelector" style="display: none;">
+                            <div class="copy-format-label">Copy as:</div>
+                            <select id="copyFormat" class="form-control" style="flex: 1;">
+                                <option value="mxpackage">Chỉ MxPackage (M_KUU-0375_1_KUU0264...)</option>
+                                <option value="line-mxpackage">Line + MxPackage (1: M_KUU-0375_1...)</option>
+                                <option value="json">JSON Array</option>
+                                <option value="csv">CSV Format</option>
+                                <option value="newline">Phân tách bằng dấu xuống dòng</option>
+                                <option value="space">Khoảng cách</option>
+                            </select>
+                            <button class="btn btn-sm btn-success" onclick="copyPackagesToClipboard()">
+                                <i class="fas fa-clipboard"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- ADVANCED FILTERS SECTION -->
+                    <div class="advanced-filters" id="advancedFilters">
+                        <div class="filter-toggle" onclick="toggleAdvancedFilters()">
+                            <div class="filter-toggle-title">
+                                <i class="fas fa-sliders-h filter-toggle-icon"></i>
+                                Advanced Filters
+                            </div>
+                            <div class="selected-count" id="activeFilterCount">0 active</div>
+                        </div>
+                        
+                        <div class="filter-advanced-grid">
+                            <!-- Package Group Filter -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-layer-group"></i> Package Group
+                                </label>
+                                <div class="multi-select-container">
+                                    <div class="multi-select-display" onclick="toggleMultiSelect('packageGroup')">
+                                        <span id="packageGroupDisplay">All Groups</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                    <div class="multi-select-dropdown" id="packageGroupDropdown">
+                                        <div class="multi-select-option">
+                                            <input type="checkbox" id="pg-all" checked onchange="toggleAllOptions('packageGroup', this.checked)">
+                                            <label for="pg-all">Select All</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Line Name Filter -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-bars"></i> Line Name
+                                </label>
+                                <div class="multi-select-container">
+                                    <div class="multi-select-display" onclick="toggleMultiSelect('lineName')">
+                                        <span id="lineNameDisplay">All Lines</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                    <div class="multi-select-dropdown" id="lineNameDropdown">
+                                        <div class="multi-select-option">
+                                            <input type="checkbox" id="ln-all" checked onchange="toggleAllOptions('lineName', this.checked)">
+                                            <label for="ln-all">Select All</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Buyer Filter -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user-tie"></i> Buyer
+                                </label>
+                                <div class="multi-select-container">
+                                    <div class="multi-select-display" onclick="toggleMultiSelect('buyer')">
+                                        <span id="buyerDisplay">All Buyers</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                    <div class="multi-select-dropdown" id="buyerDropdown">
+                                        <div class="multi-select-option">
+                                            <input type="checkbox" id="buyer-all" checked onchange="toggleAllOptions('buyer', this.checked)">
+                                            <label for="buyer-all">Select All</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Style Code Filter -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-code"></i> Style Code
+                                </label>
+                                <div class="multi-select-container">
+                                    <div class="multi-select-display" onclick="toggleMultiSelect('styleCode')">
+                                        <span id="styleCodeDisplay">All Styles</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                    <div class="multi-select-dropdown" id="styleCodeDropdown">
+                                        <div class="multi-select-option">
+                                            <input type="checkbox" id="sc-all" checked onchange="toggleAllOptions('styleCode', this.checked)">
+                                            <label for="sc-all">Select All</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Style Name Filter -->
+                            <div class="form-group">
+                                <label class="form-label" for="styleName">
+                                    <i class="fas fa-tag"></i> Style Name
+                                </label>
+                                <input type="text" id="styleName" class="form-control" 
+                                       placeholder="Enter style name (supports wildcard *)">
+                            </div>
+                            
+                            <!-- Date Range Filter -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar-week"></i> Plan Date Range
+                                </label>
+                                <div class="date-range-group">
+                                    <div class="date-range-input">
+                                        <input type="date" id="plnStartDate" class="form-control" placeholder="Start Date">
+                                    </div>
+                                    <div class="date-range-input">
+                                        <input type="date" id="plnEndDate" class="form-control" placeholder="End Date">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Filter -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-flag"></i> Status
+                                </label>
+                                <div class="status-chips">
+                                    <div class="status-chip active" onclick="toggleStatus('all')">
+                                        <input type="radio" name="status" id="status-all" checked style="display: none;">
+                                        All Status
+                                    </div>
+                                    <div class="status-chip" onclick="toggleStatus('confirmed')">
+                                        <input type="radio" name="status" id="status-confirmed" style="display: none;">
+                                        Confirmed
+                                    </div>
+                                    <div class="status-chip" onclick="toggleStatus('pending')">
+                                        <input type="radio" name="status" id="status-pending" style="display: none;">
+                                        Pending
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="applyAdvancedFilters()">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                            <button class="btn btn-warning" onclick="showQuickCopy()">
+                                <i class="fas fa-copy"></i> Quick Copy Filtered
+                            </button>
+                            <button class="btn btn-outline" onclick="clearAdvancedFilters()">
+                                <i class="fas fa-redo"></i> Clear Filters
+                            </button>
+                        </div>
+                        
+                        <!-- Active Filters Display -->
+                        <div class="active-filters-container" id="activeFiltersContainer" style="display: none;">
+                            <div class="active-filters-title">
+                                <i class="fas fa-filter"></i> Active Filters
+                            </div>
+                            <div class="status-chips" id="activeFilters"></div>
+                        </div>
+                    </div>
+
+                    <!-- QUICK COPY SECTION -->
+                    <div class="quick-copy-section" id="quickCopySection">
+                        <h2 style="margin-bottom: 25px; color: var(--dark); font-size: 1.4rem;">
+                            <i class="fas fa-copy"></i> Quick Copy by Category
+                        </h2>
+                        
+                        <div class="quick-copy-grid" id="quickCopyGrid">
+                            <!-- Will be populated by JavaScript -->
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-filter"></i>
+                                </div>
+                                <div class="empty-title">No Filtered Data</div>
+                                <div class="empty-description">
+                                    Apply filters first to see categorized packages for quick copying.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons" style="margin-top: 30px;">
+                            <button class="btn btn-success" onclick="copyAllFiltered()">
+                                <i class="fas fa-copy"></i> Copy All Filtered Packages
+                            </button>
+                            <button class="btn btn-outline" onclick="hideQuickCopy()">
+                                <i class="fas fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="results-section" id="resultsSection">
+                        <div class="results-header">
+                            <div class="results-title">
+                                <i class="fas fa-list"></i> Results
+                                <span class="badge" id="resultCount" style="background: var(--primary); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem;">0 packages</span>
+                            </div>
+                            <div class="results-actions">
+                                <button class="btn btn-sm btn-outline" onclick="exportResults()">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="clearResults()">
+                                    <i class="fas fa-trash"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="results-body">
+                            <div id="resultsContainer">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-inbox"></i>
+                                    </div>
+                                    <div class="empty-title">No Data Yet</div>
+                                    <div class="empty-description">
+                                        Enter your search criteria above and click "Fetch Packages" to retrieve MES package data.
+                                    </div>
+                                    <button class="btn btn-primary" onclick="fetchPackages()">
+                                        <i class="fas fa-search"></i> Start Searching
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- COOKIE SECTION -->
+                <div class="section-content" id="section-cookie">
+                    <div class="filter-section">
+                        <h2 style="margin-bottom: 25px; color: var(--dark); font-size: 1.4rem;">
+                            <i class="fas fa-key"></i> MES Authentication
+                        </h2>
+                        
+                        <div class="info-box" style="background: #dbeafe; padding: 20px; border-radius: var(--radius); margin-bottom: 25px; border-left: 4px solid var(--primary);">
+                            <div style="display: flex; align-items: flex-start; gap: 15px;">
+                                <div style="font-size: 1.5rem; color: var(--primary);">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin-bottom: 10px; color: var(--primary-dark);">How to get MES Cookie</h3>
+                                    <ol style="margin-left: 20px; line-height: 1.8; color: var(--gray-700);">
+                                        <li>Login to <a href="http://mespk2.pungkookvn.com" target="_blank">MES System</a></li>
+                                        <li>Open Developer Tools (F12)</li>
+                                        <li>Go to Application/Storage → Cookies</li>
+                                        <li>Find cookies for <code>mespk2.pungkookvn.com</code></li>
+                                        <li>Copy values of: <strong>ASP.NET_SessionId</strong>, <strong>.ASPXAUTH</strong>, <strong>PUNGKOOKUSID</strong></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="cookieInput">
+                                <i class="fas fa-cookie-bite"></i> MES Cookie String
+                            </label>
+                            <textarea id="cookieInput" class="form-control" rows="5" 
+                                      placeholder="Paste your MES cookie here. Example: ASP.NET_SessionId=abc123; .ASPXAUTH=xyz456; PUNGKOOKUSID=789"></textarea>
+                        </div>
+                        
+                        <div class="action-buttons" style="margin-top: 30px;">
+                            <button class="btn btn-primary" onclick="saveCookie()">
+                                <i class="fas fa-save"></i> Save Cookie
+                            </button>
+                            <button class="btn btn-success" onclick="validateCookie()">
+                                <i class="fas fa-check-circle"></i> Validate Cookie
+                            </button>
+                            <button class="btn btn-warning" onclick="loadCookie()">
+                                <i class="fas fa-folder-open"></i> Load Saved Cookie
+                            </button>
+                            <button class="btn btn-outline" onclick="clearCookie()">
+                                <i class="fas fa-trash"></i> Clear Cookie
+                            </button>
+                        </div>
+                        
+                        <div id="cookieValidationResult" style="margin-top: 30px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script>
+        // ==================== CONFIGURATION ====================
+        const CONFIG = {
+            WORKER_URL: 'https://get-mes-package.chiscoong-cloudflare-com.workers.dev/',
+            // DEFAULT_START_DATE: '2026-01-01',  // XÓA dòng này
+            // MONTHS_RANGE: 3,                    // XÓA dòng này
+            FACTORIES: ['P2C1', 'P2A1', 'P2B1', 'P2D1', 'P2E1'],
+            PAGE_SIZE: 1000,
+            MAX_PAGES: 5,
+            COOKIE_EXPIRY_DAYS: 30
+        };
+
+        // ==================== GLOBAL STATE ====================
+        let state = {
+            currentPackages: [],
+            cookie: '',
+            cookieValid: false,
+            lastValidation: null,
+            stats: {
+                totalRequests: 0,
+                successfulRequests: 0,
+                totalPackages: 0,
+                confirmedPackages: 0,
+                pendingPackages: 0
+            },
+            previousStats: {
+                totalPackages: 0,
+                confirmedPackages: 0,
+                pendingPackages: 0,
+                successRate: 0
+            }
+        };
+        
+        // ==================== ADVANCED FILTERS STATE ====================
+        let advancedFilters = {
+            packageGroups: [],
+            lineNames: [],
+            buyers: [],
+            styleCodes: [],
+            styleName: '',
+            plnStartDate: '',
+            plnEndDate: '',
+            status: 'all',
+            activeFilters: new Set()
+        };
+
+        let filteredPackages = [];
+        let quickCopyData = {};
+        
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDatePicker();
+            loadCookieWithExpiryCheck();
+            updateStatsDisplay();
+            updateCookieStatus();
+            
+            // Setup sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.style.display = sidebar.style.display === 'none' ? 'flex' : 'none';
+            });
+            
+            
+            
+            // Initialize advanced filters
+            initializeAdvancedFilters();
+        });
+        
+        // ==================== UI FUNCTIONS ====================
+        function showSection(section) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Activate clicked nav item
+            if (section === 'dashboard') {
+                document.querySelector('.nav-item[onclick="showSection(\'dashboard\')"]').classList.add('active');
+            } else if (section === 'cookie') {
+                document.querySelector('.nav-item[onclick="showSection(\'cookie\')"]').classList.add('active');
+            }
+            
+            // Update page title
+            const titles = {
+                dashboard: 'Package Search',
+                cookie: 'Authentication'
+            };
+            
+            const subtitles = {
+                dashboard: 'Search and manage MES production packages',
+                cookie: 'Manage MES authentication cookie'
+            };
+            
+            document.getElementById('pageTitle').textContent = titles[section] || 'MES Explorer';
+            document.getElementById('pageSubtitle').textContent = subtitles[section] || '';
+            
+            // Show/hide sections
+            document.querySelectorAll('.section-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            const sectionEl = document.getElementById(`section-${section}`);
+            if (sectionEl) {
+                sectionEl.classList.add('active');
+            }
+        }
+        
+        function showCopyFormats() {
+            document.getElementById('copyFormatSelector').style.display = 'flex';
+            showToast('Select copy format and click Copy', 'info', 'Copy Tools');
+        }
+        
+        // ==================== CẬP NHẬT DATE RANGE LINH HOẠT (CHO PHÉP QUÁ KHỨ VÀ TƯƠNG LAI) ====================
         function initializeDatePicker() {
-            var today = new Date();
-            $('#startDate').datepicker({ dateFormat: 'yy-mm-dd' }).datepicker('setDate', today);
-            $('#endDate').datepicker({ dateFormat: 'yy-mm-dd' });
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const today = new Date();
+            
+            // Format today as YYYY-MM-DD
+            const todayStr = today.toISOString().split('T')[0];
+            
+            // Tính ngày giới hạn 90 ngày trước và sau
+            const minDate = new Date(today);
+            minDate.setDate(today.getDate() - 90);
+            const maxDate = new Date(today);
+            maxDate.setDate(today.getDate() + 90);
+            
+            const minDateStr = minDate.toISOString().split('T')[0];
+            const maxDateStr = maxDate.toISOString().split('T')[0];
+            
+            // Set min và max cho cả 2 input
+            startDateInput.min = minDateStr;
+            startDateInput.max = maxDateStr;
+            endDateInput.min = minDateStr;
+            endDateInput.max = maxDateStr;
+            
+            // Set default values: Today for both
+            startDateInput.value = todayStr;
+            endDateInput.value = todayStr;
+            
+            // Add validation
+            startDateInput.addEventListener('change', function() {
+                if (this.value > endDateInput.value) {
+                    endDateInput.value = this.value;
+                }
+                updateDateRangeDisplay();
+            });
+            
+            endDateInput.addEventListener('change', function() {
+                if (this.value < startDateInput.value) {
+                    startDateInput.value = this.value;
+                }
+                updateDateRangeDisplay();
+            });
+            
+            // Initial update
+            updateDateRangeDisplay();
         }
 
         function updateDateRangeDisplay() {
-            var startDate = new Date($('#startDate').val());
-            var endDate = new Date($('#endDate').val());
-            var timeDiff = endDate - startDate;
-            var dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            $('#dateRangeDisplay').text(`Date Range: ${$('#startDate').val()} to ${$('#endDate').val()} (${dayDiff} days)`);
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const rangeText = document.getElementById('dateRangeText');
+            
+            if (!startDateInput.value || !endDateInput.value) {
+                rangeText.textContent = 'Please select both start and end dates';
+                return;
+            }
+            
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                rangeText.textContent = 'Invalid date selection';
+                return;
+            }
+            
+            // Format dates for display
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            const startFormatted = startDate.toLocaleDateString('en-US', options);
+            const endFormatted = endDate.toLocaleDateString('en-US', options);
+            
+            // Calculate number of days
+            const diffTime = Math.abs(endDate - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) {
+                rangeText.textContent = `${startFormatted} (Single day)`;
+            } else {
+                rangeText.textContent = `${startFormatted} → ${endFormatted} (${diffDays} ${diffDays === 1 ? 'day' : 'days'})`;
+            }
         }
-
-        $('#startDate').change(updateDateRangeDisplay);
-        $('#endDate').change(updateDateRangeDisplay);
-        $('#fetchPackagesButton').click(function() {
-            fetchPackages($('#startDate').val(), $('#endDate').val());
-        });
-
-        function fetchPackages(startDate, endDate) {
-            // Fetch packages logic here, using both startDate and endDate
-            console.log(`Fetching packages from ${startDate} to ${endDate}`);
+        
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
         }
-
-        $(document).ready(function() {
-            initializeDatePicker();
-        });
+        
+        function showToast(message, type = 'info', title = 'Notification') {
+            const toastContainer = document.getElementById('toastContainer');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    ${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+        
+        // ==================== COOKIE MANAGEMENT ====================
+        function loadCookieWithExpiryCheck() {
+            try {
+                const cookieData = localStorage.getItem('mes_cookie_data');
+                if (!cookieData) {
+                    state.cookie = '';
+                    return;
+                }
+                
+                const { cookie, savedAt, expiresAt } = JSON.parse(cookieData);
+                const now = new Date();
+                
+                // Check if cookie is expired
+                if (expiresAt && new Date(expiresAt) < now) {
+                    localStorage.removeItem('mes_cookie_data');
+                    state.cookie = '';
+                    showToast('Saved cookie has expired', 'warning', 'Cookie Expired');
+                    return;
+                }
+                
+                state.cookie = cookie;
+                document.getElementById('cookieInput').value = cookie;
+                
+                // Check if cookie is about to expire (within 24 hours)
+                if (expiresAt) {
+                    const hoursUntilExpiry = (new Date(expiresAt) - now) / (1000 * 60 * 60);
+                    if (hoursUntilExpiry < 24) {
+                        showToast(`Cookie expires in ${Math.round(hoursUntilExpiry)} hours`, 'warning', 'Cookie Expiring Soon');
+                    }
+                }
+                
+                showToast('Cookie loaded from storage', 'success', 'Cookie Loaded');
+                updateCookieStatus();
+                
+            } catch (error) {
+                console.error('Error loading cookie:', error);
+                state.cookie = '';
+            }
+        }
+        
+        function saveCookie() {
+            const cookie = document.getElementById('cookieInput').value.trim();
+            if (!cookie) {
+                showToast('Please enter a cookie first', 'error', 'Cookie Error');
+                return;
+            }
+            
+            // Calculate expiry date (30 days from now)
+            const now = new Date();
+            const expiresAt = new Date(now);
+            expiresAt.setDate(now.getDate() + CONFIG.COOKIE_EXPIRY_DAYS);
+            
+            // Save with expiry info
+            const cookieData = {
+                cookie: cookie,
+                savedAt: now.toISOString(),
+                expiresAt: expiresAt.toISOString()
+            };
+            
+            localStorage.setItem('mes_cookie_data', JSON.stringify(cookieData));
+            
+            state.cookie = cookie;
+            showToast(`Cookie saved for ${CONFIG.COOKIE_EXPIRY_DAYS} days`, 'success', 'Cookie Saved');
+            updateCookieStatus();
+        }
+        
+        function loadCookie() {
+            loadCookieWithExpiryCheck();
+        }
+        
+        function clearCookie() {
+            localStorage.removeItem('mes_cookie_data');
+            document.getElementById('cookieInput').value = '';
+            state.cookie = '';
+            state.cookieValid = false;
+            
+            showToast('Cookie cleared from storage', 'info', 'Cookie Cleared');
+            updateCookieStatus();
+        }
+        
+        async function validateCookie() {
+            const cookie = document.getElementById('cookieInput').value.trim();
+            if (!cookie) {
+                showToast('Please enter a cookie to validate', 'error', 'Validation Error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${CONFIG.WORKER_URL}api/validate-cookie`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cookie })
+                });
+                
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('cookieValidationResult');
+                if (data.health && data.health.isAlive) {
+                    resultDiv.innerHTML = `
+                        <div style="background: #d1fae5; padding: 20px; border-radius: var(--radius); border-left: 4px solid var(--secondary);">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                                <div style="font-size: 2rem; color: var(--secondary);">✅</div>
+                                <div>
+                                    <h3 style="color: var(--secondary-dark); margin-bottom: 5px;">Cookie is Valid</h3>
+                                    <p style="color: var(--gray-700);">${data.health.reason || 'Cookie authentication successful'}</p>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                                <div style="background: white; padding: 15px; border-radius: var(--radius);">
+                                    <div style="font-size: 0.9rem; color: var(--gray-500);">Tested At</div>
+                                    <div style="font-weight: 600; color: var(--dark);">${new Date(data.health.testedAt).toLocaleString()}</div>
+                                </div>
+                                <div style="background: white; padding: 15px; border-radius: var(--radius);">
+                                    <div style="font-size: 0.9rem; color: var(--gray-500);">Sample Count</div>
+                                    <div style="font-weight: 600; color: var(--dark);">${data.health.sampleCount || 'N/A'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    state.cookieValid = true;
+                    state.lastValidation = new Date();
+                    showToast('Cookie validation successful', 'success', 'Valid Cookie');
+                    
+                    // Auto-save if valid
+                    saveCookie();
+                    
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: #fee2e2; padding: 20px; border-radius: var(--radius); border-left: 4px solid var(--danger);">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="font-size: 2rem; color: var(--danger);">❌</div>
+                                <div>
+                                    <h3 style="color: var(--danger); margin-bottom: 5px;">Cookie is Invalid</h3>
+                                    <p style="color: var(--gray-700);">${data.health?.reason || data.message || 'Cookie authentication failed'}</p>
+                                    <p style="color: var(--gray-600); font-size: 0.9rem; margin-top: 10px;">
+                                        Please check if you're logged into the MES system and try again.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    state.cookieValid = false;
+                    showToast('Cookie validation failed', 'error', 'Invalid Cookie');
+                }
+                
+                updateCookieStatus();
+                
+            } catch (error) {
+                showToast(`Validation error: ${error.message}`, 'error', 'Validation Failed');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function updateCookieStatus() {
+            const statusDot = document.getElementById('cookieStatusDot');
+            const statusText = document.getElementById('cookieStatusText');
+            
+            if (state.cookie && state.cookieValid) {
+                statusDot.className = 'status-dot valid';
+                statusText.textContent = 'Authenticated';
+                statusText.style.color = 'var(--secondary)';
+            } else if (state.cookie) {
+                statusDot.className = 'status-dot';
+                statusText.textContent = 'Cookie Saved (Not Validated)';
+                statusText.style.color = 'var(--warning)';
+            } else {
+                statusDot.className = 'status-dot';
+                statusText.textContent = 'Not Authenticated';
+                statusText.style.color = 'var(--danger)';
+            }
+        }
+        
+        // ==================== PACKAGE FETCHING ====================
+        async function validateAndFetch() {
+            if (!state.cookie) {
+                showToast('Please enter and save a cookie first', 'error', 'Authentication Required');
+                showSection('cookie');
+                return;
+            }
+            
+            // Validate cookie first
+            await validateCookie();
+            
+            if (state.cookieValid) {
+                await fetchPackages();
+            }
+        }
+        
+        async function fetchPackages() {
+            if (!state.cookie) {
+                showToast('Please enter and save a cookie first', 'error', 'Authentication Required');
+                showSection('cookie');
+                return;
+            }
+            
+            const startDateInput = document.getElementById('startDate').value;
+            const endDateInput = document.getElementById('endDate').value;
+            const factory = document.getElementById('factory').value;
+            const outputFormat = document.getElementById('outputFormat').value;
+            
+            // Validation
+            if (!startDateInput || !endDateInput) {
+                showToast('Please select both start and end dates', 'error', 'Date Required');
+                return;
+            }
+            
+            const startDateObj = new Date(startDateInput);
+            const endDateObj = new Date(endDateInput);
+            
+            if (startDateObj > endDateObj) {
+                showToast('Start date cannot be after end date', 'error', 'Invalid Date Range');
+                return;
+            }
+            
+            // Format dates for API (YYYYMMDD)
+            const formatDateForAPI = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}${month}${day}`;
+            };
+            
+            const startDate = formatDateForAPI(startDateObj);
+            const endDate = formatDateForAPI(endDateObj);
+            
+            showLoading(true);
+            
+            try {
+                // Build request payload
+                const payload = {
+                    startDate: startDate,
+                    endDate: endDate,
+                    factory: factory,
+                    format: outputFormat === 'table' ? 'simple' : outputFormat,
+                    page: 1,
+                    limit: CONFIG.PAGE_SIZE
+                };
+                
+                const response = await fetch(`${CONFIG.WORKER_URL}api/get-packages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-MES-Cookie': state.cookie
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                state.stats.totalRequests++;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                // Handle CSV format
+                if (outputFormat === 'csv') {
+                    const csvData = await response.text();
+                    downloadCSV(csvData, `packages_${startDate}_${endDate}.csv`);
+                    showToast(`CSV file downloaded with ${csvData.split('\n').length - 1} records`, 'success', 'Export Complete');
+                    state.stats.successfulRequests++;
+                    updateStats();
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.message || 'Unknown error from API');
+                }
+                
+                state.stats.successfulRequests++;
+                
+                // Update stats
+                if (data.summary) {
+                    // Store previous stats for trend calculation
+                    state.previousStats.totalPackages = state.stats.totalPackages;
+                    state.previousStats.confirmedPackages = state.stats.confirmedPackages;
+                    state.previousStats.pendingPackages = state.stats.pendingPackages;
+                    state.previousStats.successRate = state.stats.totalRequests > 0 
+                        ? Math.round((state.stats.successfulRequests / state.stats.totalRequests) * 100)
+                        : 0;
+                    
+                    state.stats.totalPackages = data.summary.totalPackages || 0;
+                    state.stats.confirmedPackages = data.summary.confirmed || 0;
+                    state.stats.pendingPackages = data.summary.pending || 0;
+                }
+                
+                // Store packages for copy functionality
+                state.currentPackages = data.data || [];
+                
+                // Populate advanced filter options
+                if (data.data && data.data.length > 0) {
+                    populateFilterOptions(data.data);
+                }
+                
+                // Display results
+                displayResults(data, outputFormat);
+                
+                // Show success toast
+                const packageCount = state.currentPackages.length;
+                showToast(`Successfully fetched ${packageCount} packages`, 'success', 'Fetch Complete');
+                
+                // Update stats display
+                updateStats();
+                
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showToast(`Error fetching packages: ${error.message}`, 'error', 'Fetch Failed');
+                
+                // Show error in results
+                const resultsContainer = document.getElementById('resultsContainer');
+                resultsContainer.innerHTML = `
+                    <div style="padding: 40px; text-align: center;">
+                        <div style="font-size: 3rem; color: var(--danger); margin-bottom: 20px;">❌</div>
+                        <h3 style="color: var(--danger); margin-bottom: 15px;">Fetch Error</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 25px;">${error.message}</p>
+                        <button class="btn btn-primary" onclick="showSection('cookie')">
+                            <i class="fas fa-key"></i> Check Authentication
+                        </button>
+                    </div>
+                `;
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // ==================== JSON FORMATTING FUNCTIONS ====================
+        // FIXED: Proper JSON syntax highlighting
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, null, 2);
+            }
+            
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            return json.replace(
+                /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                function (match) {
+                    let cls = 'json-number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'json-key';
+                            match = match.replace(/:$/, '') + '<span class="json-colon">:</span>';
+                        } else {
+                            cls = 'json-string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'json-boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'json-null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                }
+            );
+        }
+        
+        // ==================== DISPLAY FUNCTIONS ====================
+        function displayResults(data, format) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultCount = document.getElementById('resultCount');
+            
+            const packageCount = data.data ? data.data.length : 0;
+            resultCount.textContent = `${packageCount} packages`;
+            
+            if (packageCount === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="empty-title">No Packages Found</div>
+                        <div class="empty-description">
+                            No packages match your search criteria. Try adjusting the date range or factory.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (format === 'table') {
+                // Create table view with IMPROVED action buttons
+                let tableHTML = `
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>MxPackage</th>
+                                    <th>Line</th>
+                                    <th>Seq</th>
+                                    <th>Status</th>
+                                    <th>Confirm</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                data.data.forEach((pkg, index) => {
+                    const isConfirmed = (pkg.confirmChk || pkg.CONFIRMCHK) === 'Y';
+                    const mxPackage = pkg.mxPackage || pkg.MxPackage || 'N/A';
+                    const safeMxPackage = mxPackage.replace(/'/g, "\\'");
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td style="font-weight: 600; color: var(--primary);">${mxPackage}</td>
+                            <td>${pkg.lineNo || pkg.LineNo || 'N/A'}</td>
+                            <td>${pkg.seqNo || pkg.SeqNo || 'N/A'}</td>
+                            <td>${pkg.status || pkg.StatusName || 'Unknown'}</td>
+                            <td>
+                                <span class="status-badge ${isConfirmed ? 'status-confirmed' : 'status-pending'}">
+                                    ${isConfirmed ? 'Confirmed' : 'Pending'}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="table-action-btn" onclick="copyPackage('${safeMxPackage}')" title="Copy package name">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                resultsContainer.innerHTML = tableHTML;
+                
+            } else if (format === 'simple') {
+                // Simple list view
+                let listHTML = '<div style="padding: 20px;">';
+                
+                data.data.forEach((pkg, index) => {
+                    const isConfirmed = (pkg.confirmChk || pkg.CONFIRMCHK) === 'Y';
+                    
+                    listHTML += `
+                        <div style="background: ${index % 2 === 0 ? 'var(--gray-50)' : 'white'}; 
+                                    padding: 15px; border-radius: var(--radius); margin-bottom: 10px;
+                                    border-left: 4px solid ${isConfirmed ? 'var(--secondary)' : 'var(--warning)'};">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: 600; color: var(--dark); margin-bottom: 5px;">
+                                        ${pkg.mxPackage || pkg.MxPackage || 'N/A'}
+                                    </div>
+                                    <div style="display: flex; gap: 15px; font-size: 0.9rem; color: var(--gray-600);">
+                                        <span>Line: ${pkg.lineNo || pkg.LineNo || 'N/A'}</span>
+                                        <span>Seq: ${pkg.seqNo || pkg.SeqNo || 'N/A'}</span>
+                                        <span>Status: ${pkg.status || pkg.StatusName || 'Unknown'}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="status-badge ${isConfirmed ? 'status-confirmed' : 'status-pending'}">
+                                        ${isConfirmed ? 'Confirmed' : 'Pending'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                listHTML += '</div>';
+                resultsContainer.innerHTML = listHTML;
+                
+            } else {
+                // JSON view with PROPER syntax highlighting
+                const jsonString = JSON.stringify(data, null, 2);
+                const highlightedJson = syntaxHighlight(jsonString);
+                
+                resultsContainer.innerHTML = `
+                    <div class="json-output">
+                        ${highlightedJson}
+                    </div>
+                `;
+            }
+        }
+        
+        // ==================== COPY FUNCTIONALITY ====================
+        function copyPackagesToClipboard() {
+            if (state.currentPackages.length === 0) {
+                showToast('No packages to copy', 'warning', 'Copy Failed');
+                return;
+            }
+            
+            const format = document.getElementById('copyFormat').value;
+            let textToCopy = '';
+            
+            switch(format) {
+                case 'mxpackage':
+                    textToCopy = state.currentPackages
+                        .map(pkg => pkg.mxPackage || pkg.MxPackage || '')
+                        .filter(pkg => pkg)
+                        .join('\n');
+                    break;
+                    
+                case 'line-mxpackage':
+                    textToCopy = state.currentPackages
+                        .map(pkg => `${pkg.lineNo || pkg.LineNo || ''}: ${pkg.mxPackage || pkg.MxPackage || ''}`)
+                        .filter(pkg => pkg && !pkg.startsWith(':'))
+                        .join('\n');
+                    break;
+                    
+                case 'json':
+                    textToCopy = JSON.stringify(state.currentPackages.map(pkg => ({
+                        mxPackage: pkg.mxPackage || pkg.MxPackage,
+                        lineNo: pkg.lineNo || pkg.LineNo,
+                        seqNo: pkg.seqNo || pkg.SeqNo
+                    })), null, 2);
+                    break;
+                    
+                case 'csv':
+                    const headers = ['MxPackage', 'LineNo', 'SeqNo', 'Status', 'ConfirmChk'];
+                    const csvRows = [
+                        headers.join(','),
+                        ...state.currentPackages.map(pkg => [
+                            pkg.mxPackage || pkg.MxPackage || '',
+                            pkg.lineNo || pkg.LineNo || '',
+                            pkg.seqNo || pkg.SeqNo || '',
+                            pkg.status || pkg.StatusName || '',
+                            pkg.confirmChk || pkg.CONFIRMCHK || ''
+                        ].map(val => `"${val}"`).join(','))
+                    ];
+                    textToCopy = csvRows.join('\n');
+                    break;
+                    
+                case 'newline':
+                    textToCopy = state.currentPackages
+                        .map(pkg => pkg.mxPackage || pkg.MxPackage || '')
+                        .filter(pkg => pkg)
+                        .join('\n');
+                    break;
+                    
+                case 'space':
+                    textToCopy = state.currentPackages
+                        .map(pkg => pkg.mxPackage || pkg.MxPackage || '')
+                        .filter(pkg => pkg)
+                        .join(' ');
+                    break;
+            }
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast(`Copied ${state.currentPackages.length} packages to clipboard`, 'success', 'Copy Successful');
+            }).catch(err => {
+                showToast(`Failed to copy: ${err.message}`, 'error', 'Copy Failed');
+            });
+        }
+        
+        function copyPackage(packageName) {
+            if (!packageName) return;
+            
+            navigator.clipboard.writeText(packageName).then(() => {
+                showToast(`Copied: ${packageName}`, 'success', 'Package Copied');
+            });
+        }
+        
+        // ==================== EXPORT FUNCTIONALITY ====================
+        function exportResults() {
+            if (state.currentPackages.length === 0) {
+                showToast('No data to export', 'warning', 'Export Failed');
+                return;
+            }
+            
+            const format = document.getElementById('outputFormat').value;
+            const startDate = document.getElementById('startDate').value.replace(/-/g, '');
+            const factory = document.getElementById('factory').value;
+            
+            let data, filename, mimeType;
+            
+            switch(format) {
+                case 'json':
+                    data = JSON.stringify(state.currentPackages, null, 2);
+                    filename = `packages_${factory}_${startDate}.json`;
+                    mimeType = 'application/json';
+                    break;
+                    
+                case 'simple':
+                case 'table':
+                    const simpleData = state.currentPackages.map(pkg => ({
+                        mxPackage: pkg.mxPackage || pkg.MxPackage,
+                        lineNo: pkg.lineNo || pkg.LineNo,
+                        seqNo: pkg.seqNo || pkg.SeqNo,
+                        status: pkg.status || pkg.StatusName,
+                        confirmChk: pkg.confirmChk || pkg.CONFIRMCHK
+                    }));
+                    data = JSON.stringify(simpleData, null, 2);
+                    filename = `packages_${factory}_${startDate}_simple.json`;
+                    mimeType = 'application/json';
+                    break;
+                    
+                case 'csv':
+                    const headers = ['MxPackage', 'LineNo', 'SeqNo', 'Status', 'ConfirmChk', 'Factory'];
+                    const csvRows = [
+                        headers.join(','),
+                        ...state.currentPackages.map(pkg => [
+                            pkg.mxPackage || pkg.MxPackage || '',
+                            pkg.lineNo || pkg.LineNo || '',
+                            pkg.seqNo || pkg.SeqNo || '',
+                            pkg.status || pkg.StatusName || '',
+                            pkg.confirmChk || pkg.CONFIRMCHK || '',
+                            factory
+                        ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+                    ];
+                    data = csvRows.join('\n');
+                    filename = `packages_${factory}_${startDate}.csv`;
+                    mimeType = 'text/csv';
+                    break;
+            }
+            
+            const blob = new Blob([data], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast(`Exported ${state.currentPackages.length} packages to ${filename}`, 'success', 'Export Complete');
+        }
+        
+        function downloadCSV(csvData, filename) {
+            const blob = new Blob([csvData], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // ==================== STATS FUNCTIONS ====================
+        function updateStats() {
+            // Calculate success rate
+            const successRate = state.stats.totalRequests > 0 
+                ? Math.round((state.stats.successfulRequests / state.stats.totalRequests) * 100)
+                : 0;
+            
+            // Calculate trends
+            const totalTrend = state.previousStats.totalPackages > 0 
+                ? Math.round(((state.stats.totalPackages - state.previousStats.totalPackages) / state.previousStats.totalPackages) * 100)
+                : 0;
+            
+            const confirmedTrend = state.previousStats.confirmedPackages > 0 
+                ? Math.round(((state.stats.confirmedPackages - state.previousStats.confirmedPackages) / state.previousStats.confirmedPackages) * 100)
+                : 0;
+            
+            const pendingTrend = state.previousStats.pendingPackages > 0 
+                ? Math.round(((state.stats.pendingPackages - state.previousStats.pendingPackages) / state.previousStats.pendingPackages) * 100)
+                : 0;
+            
+            const successTrend = state.previousStats.successRate > 0 
+                ? Math.round(((successRate - state.previousStats.successRate) / state.previousStats.successRate) * 100)
+                : 0;
+            
+            // Update sidebar stats
+            document.getElementById('statTotalSidebar').textContent = state.stats.totalPackages.toLocaleString();
+            document.getElementById('statConfirmedSidebar').textContent = state.stats.confirmedPackages.toLocaleString();
+            document.getElementById('statPendingSidebar').textContent = state.stats.pendingPackages.toLocaleString();
+            document.getElementById('statSuccessRateSidebar').textContent = `${successRate}%`;
+            
+            // Update trend indicators
+            updateTrendIndicator('statTrendTotal', totalTrend);
+            updateTrendIndicator('statTrendConfirmed', confirmedTrend);
+            updateTrendIndicator('statTrendPending', pendingTrend);
+            updateTrendIndicator('statTrendSuccess', successTrend);
+        }
+        
+        function updateTrendIndicator(elementId, trend) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            if (trend > 0) {
+                element.textContent = `+${trend}%`;
+                element.className = 'stat-trend';
+            } else if (trend < 0) {
+                element.textContent = `${trend}%`;
+                element.className = 'stat-trend down';
+            } else {
+                element.textContent = '0%';
+                element.className = 'stat-trend';
+            }
+        }
+        
+        // ==================== ADVANCED FILTERS FUNCTIONS ====================
+        function showAdvancedFilters() {
+            const filters = document.getElementById('advancedFilters');
+            if (filters.style.display === 'none' || filters.style.display === '') {
+                filters.style.display = 'block';
+                document.querySelector('.filter-toggle').classList.add('active');
+                showToast('Advanced filters panel opened', 'info', 'Advanced Filters');
+            } else {
+                filters.style.display = 'none';
+                document.querySelector('.filter-toggle').classList.remove('active');
+            }
+        }
+        
+        function toggleAdvancedFilters() {
+            const filters = document.getElementById('advancedFilters');
+            const toggle = document.querySelector('.filter-toggle');
+            
+            if (filters.style.display === 'none' || filters.style.display === '') {
+                filters.style.display = 'block';
+                toggle.classList.add('active');
+            } else {
+                filters.style.display = 'none';
+                toggle.classList.remove('active');
+            }
+        }
+        
+        function toggleMultiSelect(type) {
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            const display = document.getElementById(`${type}Display`);
+            
+            dropdown.classList.toggle('active');
+            display.classList.toggle('active');
+            
+            // Close other dropdowns
+            document.querySelectorAll('.multi-select-dropdown').forEach(dd => {
+                if (dd !== dropdown) {
+                    dd.classList.remove('active');
+                }
+            });
+            
+            document.querySelectorAll('.multi-select-display').forEach(d => {
+                if (d !== display) {
+                    d.classList.remove('active');
+                }
+            });
+        }
+        
+        function toggleAllOptions(type, checked) {
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]:not([id$="-all"])');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = checked;
+            });
+            
+            updateMultiSelectDisplay(type);
+        }
+        
+        function updateMultiSelectDisplay(type) {
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            const display = document.getElementById(`${type}Display`);
+            const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]:not([id$="-all"])');
+            
+            const selected = Array.from(checkboxes).filter(cb => cb.checked);
+            
+            if (selected.length === 0) {
+                display.textContent = 'None selected';
+            } else if (selected.length === checkboxes.length) {
+                display.textContent = `All ${type.replace(/([A-Z])/g, ' $1').toLowerCase()}s`;
+            } else if (selected.length <= 3) {
+                display.textContent = selected.map(cb => cb.nextElementSibling.textContent).join(', ');
+            } else {
+                display.textContent = `${selected.length} selected`;
+            }
+            
+            updateActiveFilterCount();
+        }
+        
+        function toggleStatus(status) {
+            advancedFilters.status = status;
+            
+            // Update UI
+            document.querySelectorAll('.status-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            
+            document.querySelector(`.status-chip[onclick="toggleStatus('${status}')"]`).classList.add('active');
+            
+            updateActiveFilterCount();
+        }
+        
+        function updateActiveFilterCount() {
+            let count = 0;
+            
+            // Count multi-select filters
+            ['packageGroup', 'lineName', 'buyer', 'styleCode'].forEach(type => {
+                const dropdown = document.getElementById(`${type}Dropdown`);
+                if (dropdown) {
+                    const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]:not([id$="-all"])');
+                    const selected = Array.from(checkboxes).filter(cb => cb.checked);
+                    const allChecked = dropdown.querySelector(`input[id$="-all"]`).checked;
+                    
+                    if (!allChecked && selected.length < checkboxes.length && checkboxes.length > 0) {
+                        count++;
+                    }
+                }
+            });
+            
+            // Count text filter
+            if (document.getElementById('styleName').value.trim()) {
+                count++;
+            }
+            
+            // Count date filters
+            if (document.getElementById('plnStartDate').value || document.getElementById('plnEndDate').value) {
+                count++;
+            }
+            
+            // Count status filter
+            if (advancedFilters.status !== 'all') {
+                count++;
+            }
+            
+            document.getElementById('activeFilterCount').textContent = `${count} active`;
+        }
+        
+        function applyAdvancedFilters() {
+            // Collect filter values
+            collectFilterValues();
+            
+            // Apply filters to current packages
+            filterCurrentPackages();
+            
+            // Update active filters display
+            updateActiveFiltersDisplay();
+            
+            // Show notification
+            showToast(`Applied ${advancedFilters.activeFilters.size} filters to ${filteredPackages.length} packages`, 
+                     'success', 'Filters Applied');
+            
+            // Show quick copy section if there are filtered packages
+            if (filteredPackages.length > 0) {
+                showQuickCopy();
+            }
+        }
+        
+        function collectFilterValues() {
+            // Collect multi-select values
+            advancedFilters.packageGroups = getSelectedOptions('packageGroup');
+            advancedFilters.lineNames = getSelectedOptions('lineName');
+            advancedFilters.buyers = getSelectedOptions('buyer');
+            advancedFilters.styleCodes = getSelectedOptions('styleCode');
+            
+            // Collect text filter
+            advancedFilters.styleName = document.getElementById('styleName').value.trim().toLowerCase();
+            
+            // Collect date filters
+            advancedFilters.plnStartDate = document.getElementById('plnStartDate').value;
+            advancedFilters.plnEndDate = document.getElementById('plnEndDate').value;
+            
+            // Status filter already set by toggleStatus
+        }
+        
+        function getSelectedOptions(type) {
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]:not([id$="-all"])');
+            
+            return Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+        }
+        
+        function filterCurrentPackages() {
+            if (state.currentPackages.length === 0) {
+                showToast('No packages to filter', 'warning', 'Filter Error');
+                filteredPackages = [];
+                return;
+            }
+            
+            filteredPackages = state.currentPackages.filter(pkg => {
+                // Package Group filter
+                if (advancedFilters.packageGroups.length > 0) {
+                    const pkgGroup = pkg.packageGroup || pkg.PackageGroup || '';
+                    if (!advancedFilters.packageGroups.includes(pkgGroup)) {
+                        return false;
+                    }
+                }
+                
+                // Line Name filter
+                if (advancedFilters.lineNames.length > 0) {
+                    const lineName = pkg.lineName || pkg.LineName || pkg.lineNo || pkg.LineNo || '';
+                    if (!advancedFilters.lineNames.includes(lineName)) {
+                        return false;
+                    }
+                }
+                
+                // Buyer filter
+                if (advancedFilters.buyers.length > 0) {
+                    const buyer = pkg.buyer || pkg.Buyer || '';
+                    if (!advancedFilters.buyers.includes(buyer)) {
+                        return false;
+                    }
+                }
+                
+                // Style Code filter
+                if (advancedFilters.styleCodes.length > 0) {
+                    const styleCode = pkg.styleCode || pkg.StyleCode || '';
+                    if (!advancedFilters.styleCodes.includes(styleCode)) {
+                        return false;
+                    }
+                }
+                
+                // Style Name filter (wildcard support)
+                if (advancedFilters.styleName) {
+                    const styleName = (pkg.styleName || pkg.StyleName || '').toLowerCase();
+                    const pattern = advancedFilters.styleName.replace(/\*/g, '.*');
+                    const regex = new RegExp(`^${pattern}$`, 'i');
+                    if (!regex.test(styleName)) {
+                        return false;
+                    }
+                }
+                
+                // Date range filter
+                if (advancedFilters.plnStartDate || advancedFilters.plnEndDate) {
+                    const plnDate = pkg.plnStartDate || pkg.PlnStartDate || '';
+                    if (!plnDate) return false;
+                    
+                    const pkgDate = new Date(plnDate);
+                    
+                    if (advancedFilters.plnStartDate && pkgDate < new Date(advancedFilters.plnStartDate)) {
+                        return false;
+                    }
+                    
+                    if (advancedFilters.plnEndDate && pkgDate > new Date(advancedFilters.plnEndDate)) {
+                        return false;
+                    }
+                }
+                
+                // Status filter
+                if (advancedFilters.status !== 'all') {
+                    const isConfirmed = (pkg.confirmChk || pkg.CONFIRMCHK) === 'Y';
+                    if (advancedFilters.status === 'confirmed' && !isConfirmed) {
+                        return false;
+                    }
+                    if (advancedFilters.status === 'pending' && isConfirmed) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // Prepare data for quick copy
+            prepareQuickCopyData();
+        }
+        
+        function updateActiveFiltersDisplay() {
+            const container = document.getElementById('activeFiltersContainer');
+            const chipsContainer = document.getElementById('activeFilters');
+            
+            // Clear existing chips
+            chipsContainer.innerHTML = '';
+            advancedFilters.activeFilters.clear();
+            
+            // Add chips for active filters
+            if (advancedFilters.packageGroups.length > 0) {
+                addFilterChip('Package Group', advancedFilters.packageGroups.join(', '), 'packageGroup');
+            }
+            
+            if (advancedFilters.lineNames.length > 0) {
+                addFilterChip('Line Name', advancedFilters.lineNames.join(', '), 'lineName');
+            }
+            
+            if (advancedFilters.buyers.length > 0) {
+                addFilterChip('Buyer', advancedFilters.buyers.join(', '), 'buyer');
+            }
+            
+            if (advancedFilters.styleCodes.length > 0) {
+                addFilterChip('Style Code', advancedFilters.styleCodes.join(', '), 'styleCode');
+            }
+            
+            if (advancedFilters.styleName) {
+                addFilterChip('Style Name', advancedFilters.styleName, 'styleName');
+            }
+            
+            if (advancedFilters.plnStartDate || advancedFilters.plnEndDate) {
+                const dateRange = `${advancedFilters.plnStartDate || 'Any'} - ${advancedFilters.plnEndDate || 'Any'}`;
+                addFilterChip('Date Range', dateRange, 'dateRange');
+            }
+            
+            if (advancedFilters.status !== 'all') {
+                addFilterChip('Status', advancedFilters.status, 'status');
+            }
+            
+            // Show/hide container
+            if (advancedFilters.activeFilters.size > 0) {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+        
+        function addFilterChip(label, value, type) {
+            const chipsContainer = document.getElementById('activeFilters');
+            advancedFilters.activeFilters.add(type);
+            
+            const chip = document.createElement('div');
+            chip.className = 'status-chip active';
+            chip.innerHTML = `
+                <span>${label}: ${value}</span>
+                <button class="status-chip-remove" onclick="removeFilter('${type}')">×</button>
+            `;
+            
+            chipsContainer.appendChild(chip);
+        }
+        
+        function removeFilter(type) {
+            switch(type) {
+                case 'packageGroup':
+                    resetMultiSelect('packageGroup');
+                    break;
+                case 'lineName':
+                    resetMultiSelect('lineName');
+                    break;
+                case 'buyer':
+                    resetMultiSelect('buyer');
+                    break;
+                case 'styleCode':
+                    resetMultiSelect('styleCode');
+                    break;
+                case 'styleName':
+                    document.getElementById('styleName').value = '';
+                    break;
+                case 'dateRange':
+                    document.getElementById('plnStartDate').value = '';
+                    document.getElementById('plnEndDate').value = '';
+                    break;
+                case 'status':
+                    toggleStatus('all');
+                    break;
+            }
+            
+            applyAdvancedFilters();
+        }
+        
+        function resetMultiSelect(type) {
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            const allCheckbox = dropdown.querySelector(`input[id$="-all"]`);
+            
+            if (allCheckbox) {
+                allCheckbox.checked = true;
+                toggleAllOptions(type, true);
+            }
+        }
+        
+        function clearAdvancedFilters() {
+            // Reset all filter controls
+            ['packageGroup', 'lineName', 'buyer', 'styleCode'].forEach(type => {
+                resetMultiSelect(type);
+            });
+            
+            document.getElementById('styleName').value = '';
+            document.getElementById('plnStartDate').value = '';
+            document.getElementById('plnEndDate').value = '';
+            toggleStatus('all');
+            
+            // Clear filtered packages
+            filteredPackages = [];
+            
+            // Update UI
+            updateActiveFilterCount();
+            document.getElementById('activeFiltersContainer').style.display = 'none';
+            document.getElementById('quickCopySection').style.display = 'none';
+            
+            showToast('All filters cleared', 'info', 'Filters Cleared');
+        }
+        
+        // ==================== QUICK COPY FUNCTIONALITY ====================
+        function showQuickCopy() {
+            if (filteredPackages.length === 0) {
+                showToast('No filtered packages to copy', 'warning', 'Quick Copy');
+                return;
+            }
+            
+            document.getElementById('quickCopySection').style.display = 'block';
+            document.getElementById('quickCopySection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function hideQuickCopy() {
+            document.getElementById('quickCopySection').style.display = 'none';
+        }
+        
+        function prepareQuickCopyData() {
+            quickCopyData = {
+                byPackageGroup: groupBy(filteredPackages, 'packageGroup', 'PackageGroup'),
+                byLineName: groupBy(filteredPackages, 'lineName', 'LineName', 'lineNo', 'LineNo'),
+                byBuyer: groupBy(filteredPackages, 'buyer', 'Buyer'),
+                byStyleCode: groupBy(filteredPackages, 'styleCode', 'StyleCode'),
+                byStatus: groupByStatus(filteredPackages),
+                byDate: groupByDate(filteredPackages)
+            };
+            
+            renderQuickCopyGrid();
+        }
+        
+        function groupBy(packages, ...keys) {
+            const groups = {};
+            
+            packages.forEach(pkg => {
+                let value = '';
+                for (const key of keys) {
+                    if (pkg[key]) {
+                        value = pkg[key];
+                        break;
+                    }
+                }
+                
+                if (!value) value = 'Unknown';
+                
+                if (!groups[value]) {
+                    groups[value] = [];
+                }
+                
+                const mxPackage = pkg.mxPackage || pkg.MxPackage || '';
+                if (mxPackage) {
+                    groups[value].push(mxPackage);
+                }
+            });
+            
+            return groups;
+        }
+        
+        function groupByStatus(packages) {
+            const groups = {
+                'Confirmed': [],
+                'Pending': []
+            };
+            
+            packages.forEach(pkg => {
+                const isConfirmed = (pkg.confirmChk || pkg.CONFIRMCHK) === 'Y';
+                const mxPackage = pkg.mxPackage || pkg.MxPackage || '';
+                
+                if (mxPackage) {
+                    if (isConfirmed) {
+                        groups['Confirmed'].push(mxPackage);
+                    } else {
+                        groups['Pending'].push(mxPackage);
+                    }
+                }
+            });
+            
+            return groups;
+        }
+        
+        function groupByDate(packages) {
+            const groups = {};
+            
+            packages.forEach(pkg => {
+                const date = pkg.plnStartDate || pkg.PlnStartDate || 'Unknown';
+                const mxPackage = pkg.mxPackage || pkg.MxPackage || '';
+                
+                if (mxPackage) {
+                    if (!groups[date]) {
+                        groups[date] = [];
+                    }
+                    
+                    groups[date].push(mxPackage);
+                }
+            });
+            
+            return groups;
+        }
+        
+        function renderQuickCopyGrid() {
+            const grid = document.getElementById('quickCopyGrid');
+            
+            // Clear existing content
+            grid.innerHTML = '';
+            
+            // Check if we have any data
+            let hasData = false;
+            for (const key in quickCopyData) {
+                if (Object.keys(quickCopyData[key]).length > 0) {
+                    hasData = true;
+                    break;
+                }
+            }
+            
+            if (!hasData) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <div class="empty-title">No Categorized Data</div>
+                        <div class="empty-description">
+                            No packages found for the current filters.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render each category
+            renderCategoryCard('byPackageGroup', 'Package Group', 'fas fa-layer-group');
+            renderCategoryCard('byLineName', 'Line Name', 'fas fa-bars');
+            renderCategoryCard('byBuyer', 'Buyer', 'fas fa-user-tie');
+            renderCategoryCard('byStyleCode', 'Style Code', 'fas fa-code');
+            renderCategoryCard('byStatus', 'Status', 'fas fa-flag');
+            renderCategoryCard('byDate', 'Plan Date', 'fas fa-calendar');
+        }
+        
+        function renderCategoryCard(dataKey, title, icon) {
+            const grid = document.getElementById('quickCopyGrid');
+            const data = quickCopyData[dataKey];
+            
+            if (!data || Object.keys(data).length === 0) return;
+            
+            Object.keys(data).forEach(groupName => {
+                const packages = data[groupName];
+                if (packages.length === 0) return;
+                
+                const card = document.createElement('div');
+                card.className = 'quick-copy-card';
+                card.innerHTML = `
+                    <div class="quick-copy-header">
+                        <div class="quick-copy-title">
+                            <i class="${icon}"></i>
+                            <span>${title}: ${groupName}</span>
+                        </div>
+                        <div class="quick-copy-count">${packages.length}</div>
+                    </div>
+                    <div class="quick-copy-preview">${packages.slice(0, 3).join(', ')}${packages.length > 3 ? '...' : ''}</div>
+                    <button class="quick-copy-btn" onclick="copyGroup('${dataKey}', '${groupName.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-copy"></i> Copy ${packages.length} Packages
+                    </button>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        function copyGroup(dataKey, groupName) {
+            const packages = quickCopyData[dataKey][groupName];
+            if (!packages || packages.length === 0) {
+                showToast('No packages to copy', 'warning', 'Copy Failed');
+                return;
+            }
+            
+            const text = packages.join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`Copied ${packages.length} packages from ${groupName}`, 'success', 'Copy Successful');
+            }).catch(err => {
+                showToast(`Failed to copy: ${err.message}`, 'error', 'Copy Failed');
+            });
+        }
+        
+        function copyAllFiltered() {
+            if (filteredPackages.length === 0) {
+                showToast('No filtered packages to copy', 'warning', 'Copy Failed');
+                return;
+            }
+            
+            const text = filteredPackages
+                .map(pkg => pkg.mxPackage || pkg.MxPackage || '')
+                .filter(pkg => pkg)
+                .join('\n');
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`Copied all ${filteredPackages.length} filtered packages`, 'success', 'Copy Successful');
+            }).catch(err => {
+                showToast(`Failed to copy: ${err.message}`, 'error', 'Copy Failed');
+            });
+        }
+        
+        // ==================== INITIALIZATION ====================
+        function initializeAdvancedFilters() {
+            // Add event listeners for filters
+            document.getElementById('styleName').addEventListener('input', updateActiveFilterCount);
+            document.getElementById('plnStartDate').addEventListener('change', updateActiveFilterCount);
+            document.getElementById('plnEndDate').addEventListener('change', updateActiveFilterCount);
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.multi-select-container')) {
+                    document.querySelectorAll('.multi-select-dropdown').forEach(dd => {
+                        dd.classList.remove('active');
+                    });
+                    document.querySelectorAll('.multi-select-display').forEach(d => {
+                        d.classList.remove('active');
+                    });
+                }
+            });
+            
+            // Initialize today's date for date filters
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('plnStartDate').max = today;
+            document.getElementById('plnEndDate').max = today;
+            
+            // Set default date range (last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            document.getElementById('plnStartDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById('plnEndDate').value = today;
+        }
+        
+        function populateFilterOptions(packages) {
+            const uniqueValues = {
+                packageGroups: new Set(),
+                lineNames: new Set(),
+                buyers: new Set(),
+                styleCodes: new Set()
+            };
+            
+            packages.forEach(pkg => {
+                if (pkg.packageGroup || pkg.PackageGroup) {
+                    uniqueValues.packageGroups.add(pkg.packageGroup || pkg.PackageGroup);
+                }
+                if (pkg.lineName || pkg.LineName || pkg.lineNo || pkg.LineNo) {
+                    uniqueValues.lineNames.add(pkg.lineName || pkg.LineName || pkg.lineNo || pkg.LineNo);
+                }
+                if (pkg.buyer || pkg.Buyer) {
+                    uniqueValues.buyers.add(pkg.buyer || pkg.Buyer);
+                }
+                if (pkg.styleCode || pkg.StyleCode) {
+                    uniqueValues.styleCodes.add(pkg.styleCode || pkg.StyleCode);
+                }
+            });
+            
+            // Populate dropdowns
+            populateDropdown('packageGroup', Array.from(uniqueValues.packageGroups).filter(v => v));
+            populateDropdown('lineName', Array.from(uniqueValues.lineNames).filter(v => v));
+            populateDropdown('buyer', Array.from(uniqueValues.buyers).filter(v => v));
+            populateDropdown('styleCode', Array.from(uniqueValues.styleCodes).filter(v => v));
+        }
+        
+        function populateDropdown(type, values) {
+            const dropdown = document.getElementById(`${type}Dropdown`);
+            if (!dropdown) return;
+            
+            // Clear existing options (except "Select All")
+            const existingOptions = dropdown.querySelectorAll('.multi-select-option:not(:first-child)');
+            existingOptions.forEach(opt => opt.remove());
+            
+            // Add new options
+            values.forEach(value => {
+                if (!value) return;
+                
+                const option = document.createElement('div');
+                option.className = 'multi-select-option';
+                option.innerHTML = `
+                    <input type="checkbox" id="${type}-${value.toString().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}" 
+                           value="${value}" checked>
+                    <label for="${type}-${value.toString().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}">${value}</label>
+                `;
+                
+                dropdown.appendChild(option);
+                
+                // Add change event listener
+                option.querySelector('input').addEventListener('change', function() {
+                    updateMultiSelectDisplay(type);
+                });
+            });
+            
+            // Update display
+            updateMultiSelectDisplay(type);
+        }
+        
+        // ==================== UTILITY FUNCTIONS ====================
+        function clearResults() {
+            state.currentPackages = [];
+            filteredPackages = [];
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <div class="empty-title">No Data Yet</div>
+                    <div class="empty-description">
+                        Enter your search criteria above and click "Fetch Packages" to retrieve MES package data.
+                    </div>
+                </div>
+            `;
+            document.getElementById('resultCount').textContent = '0 packages';
+            document.getElementById('quickCopySection').style.display = 'none';
+            showToast('Results cleared', 'info', 'Cleared');
+        }
+        
+        function resetFilters() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').value = today;
+            document.getElementById('endDate').value = today;
+            document.getElementById('factory').value = 'P2C1';
+            document.getElementById('outputFormat').value = 'json';
+            document.getElementById('copyFormatSelector').style.display = 'none';
+            clearAdvancedFilters();
+            updateDateRangeDisplay();
+            showToast('Filters reset to today', 'info', 'Reset Complete');
+        }
+        
+        function updateStatsDisplay() {
+            // Initial stats display
+            updateStats();
+        }
+        // ==================== QUICK DATE RANGE FUNCTIONS ====================
+        function setDateRange(range) {
+            const today = new Date();
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            
+            const formatDate = (date) => date.toISOString().split('T')[0];
+            
+            // Xóa time part để so sánh chính xác
+            today.setHours(0, 0, 0, 0);
+            
+            switch(range) {
+                case 'today':
+                    startDateInput.value = formatDate(today);
+                    endDateInput.value = formatDate(today);
+                    break;
+                    
+                case 'yesterday':
+                    const yesterday = new Date(today);
+                    yesterday.setDate(today.getDate() - 1);
+                    startDateInput.value = formatDate(yesterday);
+                    endDateInput.value = formatDate(yesterday);
+                    break;
+                    
+                case 'last7days':
+                    const last7Days = new Date(today);
+                    last7Days.setDate(today.getDate() - 7);
+                    startDateInput.value = formatDate(last7Days);
+                    endDateInput.value = formatDate(today);
+                    break;
+                    
+                case 'last30days':
+                    const last30Days = new Date(today);
+                    last30Days.setDate(today.getDate() - 30);
+                    startDateInput.value = formatDate(last30Days);
+                    endDateInput.value = formatDate(today);
+                    break;
+                    
+                case 'next7days':
+                    const next7Days = new Date(today);
+                    next7Days.setDate(today.getDate() + 7);
+                    startDateInput.value = formatDate(today);
+                    endDateInput.value = formatDate(next7Days);
+                    break;
+                    
+                case 'next30days':
+                    const next30Days = new Date(today);
+                    next30Days.setDate(today.getDate() + 30);
+                    startDateInput.value = formatDate(today);
+                    endDateInput.value = formatDate(next30Days);
+                    break;
+            }
+            
+            // Cập nhật hiển thị
+            updateDateRangeDisplay();
+            
+            // Thông báo
+            const rangeNames = {
+                'today': 'Today',
+                'yesterday': 'Yesterday',
+                'last7days': 'Last 7 Days',
+                'last30days': 'Last 30 Days',
+                'next7days': 'Next 7 Days',
+                'next30days': 'Next 30 Days'
+            };
+            showToast(`Date range set to ${rangeNames[range]}`, 'success', 'Range Updated');
+        }
     </script>
 </body>
 </html>
